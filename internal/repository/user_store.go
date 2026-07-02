@@ -1,6 +1,8 @@
 package store
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type User struct {
 	ID            int    `json:"id"`
@@ -21,6 +23,7 @@ func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
 
 type UserStore interface {
 	CreateUser(*User) (*User, error)
+	FindUserById(*User) error
 }
 
 func (pg PostgresUserStore) CreateUser(user *User) (*User, error) {
@@ -47,4 +50,26 @@ func (pg PostgresUserStore) CreateUser(user *User) (*User, error) {
 	}
 
 	return user, nil
+}
+
+func (pg PostgresUserStore) FindUserById(user *User) error {
+	tx, err := pg.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	query := `
+	SELECT id,username,email FROM users WHERE id = $1
+	`
+
+	if err = tx.QueryRow(query, user.ID).Scan(&user.ID, &user.Username, &user.Email); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }

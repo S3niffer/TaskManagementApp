@@ -33,7 +33,19 @@ func (user *UsersHandler) HandleGetUserByID(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	fmt.Fprintf(w, "the user id is: %d\n", userId)
+	userStruct := &store.User{ID: int(userId)}
+
+	if err = user.userStore.FindUserById(userStruct); err != nil {
+		fmt.Println(err)
+		http.Error(w, "Couldn't find user with provided id.", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(userStruct); err != nil {
+		http.Error(w, "Internal Server error.", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (u *UsersHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
