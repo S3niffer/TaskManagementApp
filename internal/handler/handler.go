@@ -10,8 +10,10 @@ func SetUpHandler(a *app.Application) *chi.Mux {
 
 	handler.Get("/health", a.HealthCheck)
 
-	handler.Get("/users/{id}", a.User.HandleGetUserByID)
-	handler.Post("/users", a.User.HandleCreateUser)
+	handler.Route("/users", func(r chi.Router) {
+		r.Get("/{id}", a.User.HandleGetUserByID)
+		r.Post("/", a.User.HandleCreateUser)
+	})
 
 	return handler
 }
