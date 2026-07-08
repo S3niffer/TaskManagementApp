@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/s3niffer/taskmanagementapp/internal/router"
 )
 
 func main() {
@@ -14,6 +16,7 @@ func main() {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Second * 30,
 		WriteTimeout: time.Second * 20,
+		Handler:      router.CreateRouter(),
 	}
 
 	if err = server.ListenAndServe(); err != nil {
