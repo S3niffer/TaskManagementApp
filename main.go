@@ -16,7 +16,7 @@ func main() {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Second * 30,
 		WriteTimeout: time.Second * 20,
-		Handler:      router.CreateRouter(),
+		Handler:      router.New(),
 	}
 
 	if err = server.ListenAndServe(); err != nil {

@@ -5,7 +5,7 @@ import "net/http"
 type Router struct {
 }
 
-func CreateRouter() *Router {
+func New() *Router {
 	return &Router{}
 }
 
