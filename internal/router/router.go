@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/s3niffer/taskmanagementapp/internal/app"
+	"github.com/s3niffer/taskmanagementapp/internal/handler"
 )
 
 type Router struct {
@@ -25,6 +26,8 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("bye"))
 	case "/health":
 		router.App.HealthCheck(w, r)
+	case "/user":
+		handler.CreateUser(w, r)
 	default:
 		w.Write([]byte("help"))
 	}
