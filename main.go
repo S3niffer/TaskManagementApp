@@ -16,6 +16,7 @@ func main() {
 
 	db, err := store.New()
 	if err != nil {
+		fmt.Println(err)
 		fmt.Println("couldn't create the database. :(")
 		os.Exit(1)
 	}
