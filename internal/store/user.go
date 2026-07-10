@@ -16,11 +16,11 @@ type user struct {
 
 var UserDuplicateError = errors.New("Duplicate username.")
 
-func (store *UserStore) CreateUser(u string, p string) error {
+func (store *UserStore) CreateUser(u string, p string) (int, error) {
 
 	for _, v := range store.db.Users {
 		if v.Username == u {
-			return UserDuplicateError
+			return 0, UserDuplicateError
 		}
 	}
 
@@ -29,10 +29,10 @@ func (store *UserStore) CreateUser(u string, p string) error {
 
 	err := store.db.SaveToFile()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return store.db.ModifiedTimes, nil
 }
 
 func (store *UserStore) GetAllUsers() []user {
