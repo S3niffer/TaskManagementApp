@@ -4,12 +4,6 @@ type Store struct {
 	User UserStore
 }
 
-type user struct {
-	username string
-	password string
-	id       int
-}
-
 type DataBase struct {
 	users         []user
 	modifiedTimes int

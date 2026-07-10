@@ -8,6 +8,12 @@ type UserStore struct {
 	db *DataBase
 }
 
+type user struct {
+	username string
+	password string
+	id       int
+}
+
 var UserDuplicateError = errors.New("Duplicate username.")
 
 func (store *UserStore) CreateUser(u string, p string) error {
