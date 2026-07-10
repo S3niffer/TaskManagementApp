@@ -8,10 +8,10 @@ import (
 )
 
 type Router struct {
-	App *app.Application
+	App app.Application
 }
 
-func New(app *app.Application) *Router {
+func New(app app.Application) *Router {
 	return &Router{
 		App: app,
 	}
@@ -27,7 +27,7 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/health":
 		router.App.HealthCheck(w, r)
 	case "/user":
-		handler.CreateUser(w, r)
+		handler.CreateUser(router.App, w, r)
 	default:
 		w.Write([]byte("help"))
 	}

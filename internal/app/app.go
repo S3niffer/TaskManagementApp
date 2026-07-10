@@ -3,14 +3,20 @@ package app
 import (
 	"net/http"
 
+	"github.com/s3niffer/taskmanagementapp/internal/store"
 	"github.com/s3niffer/taskmanagementapp/internal/utilities"
 )
 
 type Application struct {
+	DB store.Store
 }
 
-func New() (*Application, error) {
-	return &Application{}, nil
+func New(
+	DB store.Store,
+) (Application, error) {
+	return Application{
+		DB,
+	}, nil
 }
 
 func (Application) HealthCheck(w http.ResponseWriter, r *http.Request) {

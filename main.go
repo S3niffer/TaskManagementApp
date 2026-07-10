@@ -3,16 +3,24 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/s3niffer/taskmanagementapp/internal/app"
 	"github.com/s3niffer/taskmanagementapp/internal/router"
+	"github.com/s3niffer/taskmanagementapp/internal/store"
 )
 
 func main() {
 	var err error
 
-	application, err := app.New()
+	db, err := store.New()
+	if err != nil {
+		fmt.Print("couldn't create the database. :(")
+		os.Exit(1)
+	}
+
+	application, err := app.New(db)
 
 	server := &http.Server{
 		Addr:         ":8080",
@@ -23,6 +31,7 @@ func main() {
 	}
 
 	if err = server.ListenAndServe(); err != nil {
+		fmt.Println(err)
 		fmt.Println("couldn't run the server. :(")
 	}
 }

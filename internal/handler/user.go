@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/s3niffer/taskmanagementapp/internal/app"
 )
 
 type User struct {
@@ -10,7 +12,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateUser(app app.Application, w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -18,7 +20,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if json.NewEncoder(w).Encode(user) != nil {
-		http.Error(w, "Internal server error.", http.StatusInternalServerError)
+	if user.Username == "" || user.Password == "" {
+		http.Error(w, "Username or password can not be empty.", http.StatusBadRequest)
+		return
+	}
+
+	if err := app.DB.User.CreateUser(user.Username, user.Password); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
