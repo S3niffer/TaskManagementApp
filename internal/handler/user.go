@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/s3niffer/taskmanagementapp/internal/app"
+	"github.com/s3niffer/taskmanagementapp/internal/store"
 )
 
 type User struct {
@@ -25,7 +28,11 @@ func CreateUser(app app.Application, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := app.DB.User.CreateUser(user.Username, user.Password); err != nil {
+	if err := app.DB.User.CreateUser(user.Username, user.Password); errors.Is(store.UserDuplicateError, err) {
+		http.Error(w, fmt.Sprintf("already a user with username of %s exist.", user.Username), http.StatusBadRequest)
+		return
+	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
