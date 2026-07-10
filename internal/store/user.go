@@ -9,23 +9,28 @@ type UserStore struct {
 }
 
 type user struct {
-	username string
-	password string
-	id       int
+	Username string `json:"username"`
+	Password string `json:"password"`
+	ID       int    `json:"id"`
 }
 
 var UserDuplicateError = errors.New("Duplicate username.")
 
 func (store *UserStore) CreateUser(u string, p string) error {
 
-	for _, v := range store.db.users {
-		if v.username == u {
+	for _, v := range store.db.Users {
+		if v.Username == u {
 			return UserDuplicateError
 		}
 	}
 
-	store.db.users = append(store.db.users, user{username: u, password: p, id: store.db.modifiedTimes + 1})
-	store.db.modifiedTimes++
+	store.db.Users = append(store.db.Users, user{Username: u, Password: p, ID: store.db.ModifiedTimes + 1})
+	store.db.ModifiedTimes++
+
+	err := store.db.SaveToFile()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
