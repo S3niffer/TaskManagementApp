@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"os"
+	"sync"
 )
 
 type Store struct {
@@ -10,6 +11,7 @@ type Store struct {
 }
 
 type DataBase struct {
+	sync.RWMutex
 	Users         []user `json:"users"`
 	ModifiedTimes int    `json:"modified_times"`
 	FileName      string `json:"-"`
@@ -34,7 +36,7 @@ func New() (Store, error) {
 	}, nil
 }
 
-func (db DataBase) createFile() error {
+func (db *DataBase) createFile() error {
 	// if utilities.IsFileExist(db.FileName) {
 	// 	return nil
 	// }

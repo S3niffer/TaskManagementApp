@@ -17,7 +17,8 @@ type user struct {
 var UserDuplicateError = errors.New("Duplicate username.")
 
 func (store *UserStore) CreateUser(u string, p string) (int, error) {
-
+	store.db.Lock()
+	defer store.db.Unlock()
 	for _, v := range store.db.Users {
 		if v.Username == u {
 			return 0, UserDuplicateError
@@ -36,5 +37,11 @@ func (store *UserStore) CreateUser(u string, p string) (int, error) {
 }
 
 func (store *UserStore) GetAllUsers() []user {
-	return store.db.Users
+	store.db.RLock()
+	defer store.db.RUnlock()
+
+	users := make([]user, len(store.db.Users))
+	copy(users, store.db.Users)
+
+	return users
 }
