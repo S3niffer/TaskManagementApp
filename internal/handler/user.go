@@ -18,8 +18,11 @@ type User struct {
 func CreateUser(app app.Application, w http.ResponseWriter, r *http.Request) {
 	var user User
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Bad request.", http.StatusBadRequest)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&user); err != nil {
+		fmt.Println(err)
+		http.Error(w, fmt.Sprintf("Bad request: %s)", err.Error()), http.StatusBadRequest)
 		return
 	}
 
