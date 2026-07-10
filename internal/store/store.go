@@ -3,8 +3,6 @@ package store
 import (
 	"encoding/json"
 	"os"
-
-	"github.com/s3niffer/taskmanagementapp/internal/utilities"
 )
 
 type Store struct {
@@ -37,15 +35,23 @@ func New() (Store, error) {
 }
 
 func (db DataBase) createFile() error {
-	if utilities.IsFileExist(db.FileName) {
-		return nil
-	}
+	// if utilities.IsFileExist(db.FileName) {
+	// 	return nil
+	// }
 
-	file, err := os.Create(db.FileName)
+	// file, err := os.Create(db.FileName)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer file.Close()
+	// return nil
+
+	file, err := os.OpenFile(db.FileName, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+
 	return nil
 }
 
