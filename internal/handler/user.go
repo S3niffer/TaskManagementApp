@@ -36,3 +36,11 @@ func CreateUser(app app.Application, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func GetAllUsers(app app.Application, w http.ResponseWriter) {
+	users := app.DB.User.GetAllUsers()
+
+	w.Header().Add("Content-Type", ": application/json")
+
+	json.NewEncoder(w).Encode(users)
+}

@@ -34,3 +34,7 @@ func (store *UserStore) CreateUser(u string, p string) error {
 
 	return nil
 }
+
+func (store *UserStore) GetAllUsers() []user {
+	return store.db.Users
+}

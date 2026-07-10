@@ -28,6 +28,8 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		router.App.HealthCheck(w, r)
 	case "/user":
 		handler.CreateUser(router.App, w, r)
+	case "/users":
+		handler.GetAllUsers(router.App, w)
 	default:
 		w.Write([]byte("help"))
 	}
