@@ -38,7 +38,11 @@ func (Application) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "Something went wrong!.", http.StatusInternalServerError)
 	// }
 
-	if err := utilities.JsonMessage("It looks fine. :)", w); err != nil {
+	if err := utilities.JsonResponse(struct {
+		Status string `json:"status"`
+	}{
+		Status: "It looks fine. :)",
+	}, w); err != nil {
 		http.Error(w, "Something went wrong!.", http.StatusInternalServerError)
 	}
 }
