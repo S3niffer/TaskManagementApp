@@ -1,36 +1,16 @@
 package router
 
 import (
-	"net/http"
-
+	"github.com/go-chi/chi/v5"
 	"github.com/s3niffer/taskmanagementapp/internal/app"
-	"github.com/s3niffer/taskmanagementapp/internal/handler"
 )
 
-type Router struct {
-	App app.Application
-}
+func New(app app.Application) *chi.Mux {
+	r := chi.NewRouter()
 
-func New(app app.Application) *Router {
-	return &Router{
-		App: app,
-	}
-}
+	r.Post("/users", app.Handler.CreateUser)
+	r.Get("/users", app.Handler.GetAllUsers)
 
-func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	switch r.URL.Path {
-	case "/":
-		w.Write([]byte("hello"))
-	case "/2":
-		w.Write([]byte("bye"))
-	case "/health":
-		router.App.HealthCheck(w, r)
-	case "/user":
-		handler.CreateUser(router.App, w, r)
-	case "/users":
-		handler.GetAllUsers(router.App, w)
-	default:
-		w.Write([]byte("help"))
-	}
+	r.Get("/health", app.HealthCheck)
+	return r
 }

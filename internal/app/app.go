@@ -1,21 +1,33 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/s3niffer/taskmanagementapp/internal/handler"
 	"github.com/s3niffer/taskmanagementapp/internal/store"
 	"github.com/s3niffer/taskmanagementapp/internal/utilities"
 )
 
 type Application struct {
-	DB store.Store
+	DB      store.Store
+	Handler handler.Handler
 }
 
-func New(
-	DB store.Store,
-) (Application, error) {
+func New() (Application, error) {
+	db, err := store.New()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("couldn't create the database. :(")
+		os.Exit(1)
+	}
+
+	handler := handler.New(db)
+
 	return Application{
-		DB,
+		DB:      db,
+		Handler: handler,
 	}, nil
 }
 
