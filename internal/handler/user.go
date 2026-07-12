@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/s3niffer/taskmanagementapp/internal/store"
+	"github.com/s3niffer/taskmanagementapp/internal/utilities"
 )
 
 type Handler struct {
@@ -57,8 +58,7 @@ func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	newUser := newUser{Username: user.Username, ID: id}
 
-	w.Header().Add("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(newUser); err != nil {
+	if err = utilities.JsonResponse(newUser, w); err != nil {
 		http.Error(w, fmt.Sprintf("Internal Error: (%s)", err.Error()), http.StatusInternalServerError)
 	}
 }
@@ -66,7 +66,5 @@ func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h Handler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	users := h.DB.User.GetAllUsers()
 
-	w.Header().Add("Content-Type", ": application/json")
-
-	json.NewEncoder(w).Encode(users)
+	utilities.JsonResponse(users, w)
 }
