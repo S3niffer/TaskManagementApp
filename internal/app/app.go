@@ -14,16 +14,10 @@ type Application struct {
 }
 
 func New() (Application, error) {
-	db, err := sql.Open("pgx", "host=localhost port=5433 user=postgres password=mypassword dbname=task_management sslmode=disable")
+	db, err := connectToDB()
 	if err != nil {
-		return Application{}, fmt.Errorf("Open db: %w", err)
+		return Application{}, err
 	}
-
-	if err = db.Ping(); err != nil {
-		return Application{}, fmt.Errorf("Open db: %w", err)
-	}
-
-	fmt.Print("Database is up.")
 
 	return Application{
 		DB: db,
@@ -38,4 +32,19 @@ func (Application) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	}{
 		Status: "ok",
 	})
+}
+
+func connectToDB() (*sql.DB, error) {
+	db, err := sql.Open("pgx", "host=localhost port=5433 user=postgres password=mypassword dbname=task_management sslmode=disable")
+	if err != nil {
+		return nil, fmt.Errorf("Open db: %w", err)
+	}
+
+	if err = db.Ping(); err != nil {
+		return nil, fmt.Errorf("Open db: %w", err)
+	}
+
+	fmt.Print("Database is up.")
+
+	return db, nil
 }
