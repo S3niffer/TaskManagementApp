@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,7 +12,7 @@ import (
 )
 
 type Application struct {
-	DB      store.Store
+	DB      *sql.DB
 	Handler handler.Handler
 }
 
@@ -23,7 +24,9 @@ func New() (Application, error) {
 		os.Exit(1)
 	}
 
-	handler := handler.New(db)
+	userStore := store.NewUserStore(db)
+
+	handler := handler.New(userStore)
 
 	return Application{
 		DB:      db,

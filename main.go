@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -13,6 +14,10 @@ func main() {
 	var err error
 
 	application, err := app.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer application.DB.Close()
 
 	server := &http.Server{
 		Addr:         ":8080",

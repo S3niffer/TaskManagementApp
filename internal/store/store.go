@@ -1,88 +1,49 @@
 package store
 
 import (
-	"encoding/json"
-	"os"
-	"sync"
+	"database/sql"
+	"fmt"
+	"log"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file" // <-- Required
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type Store struct {
 	User UserStore
 }
 
-type DataBase struct {
-	sync.RWMutex
-	Users         []user `json:"users"`
-	ModifiedTimes int    `json:"modified_times"`
-	FileName      string `json:"-"`
-}
-
-func New() (Store, error) {
-	db := &DataBase{
-		FileName: "Database.txt",
-	}
-
-	if err := db.createFile(); err != nil {
-		return Store{}, err
-	}
-
-	err := db.LoadFromFile()
+func New() (*sql.DB, error) {
+	db, err := sql.Open("pgx", "host=localhost port=5432 user=postgres password=1 dbname=task_managment sslmode=disable")
 	if err != nil {
-		return Store{}, err
+		return nil, fmt.Errorf("Open DB: %w", err)
 	}
 
-	return Store{
-		User: UserStore{db},
-	}, nil
-}
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("db: open %w", err)
+	}
 
-func (db *DataBase) createFile() error {
-	// if utilities.IsFileExist(db.FileName) {
-	// 	return nil
-	// }
-
-	// file, err := os.Create(db.FileName)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer file.Close()
-	// return nil
-
-	file, err := os.OpenFile(db.FileName, os.O_CREATE|os.O_RDWR, 0644)
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	defer file.Close()
 
-	return nil
-}
-
-func (db *DataBase) SaveToFile() error {
-	data, err := json.Marshal(db)
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres",
+		driver,
+	)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
-	if err = os.WriteFile(db.FileName, data, 0644); err != nil {
-		return err
+	err = m.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
 	}
 
-	return nil
-}
-
-func (db *DataBase) LoadFromFile() error {
-	data, err := os.ReadFile(db.FileName)
-	if err != nil {
-		return err
-	}
-
-	if len(data) == 0 {
-		return nil
-	}
-
-	if err = json.Unmarshal(data, db); err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Println("Connected to Database...")
+	return db, nil
 }

@@ -11,12 +11,12 @@ import (
 )
 
 type Handler struct {
-	DB store.Store
+	userStore *store.UserStore
 }
 
-func New(db store.Store) Handler {
+func New(userStore *store.UserStore) Handler {
 	return Handler{
-		DB: db,
+		userStore: userStore,
 	}
 }
 
@@ -47,7 +47,7 @@ func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.DB.User.CreateUser(user.Username, user.Password)
+	id, err := h.userStore.CreateUser(user.Username, user.Password)
 	if errors.Is(store.UserDuplicateError, err) {
 		http.Error(w, fmt.Sprintf("already a user with username of %s exist.", user.Username), http.StatusBadRequest)
 		return
@@ -64,7 +64,7 @@ func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	users := h.DB.User.GetAllUsers()
+	users := h.userStore.GetAllUsers()
 
 	utilities.JsonResponse(users, w)
 }
