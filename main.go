@@ -10,7 +10,11 @@ import (
 )
 
 func main() {
-	application := app.New()
+	application, err := app.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer application.DB.Close()
 
 	handler := handler.New(application)
 
@@ -22,7 +26,7 @@ func main() {
 		Handler:      handler,
 	}
 
-	if err := server.ListenAndServe(); err != nil {
+	if err = server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
