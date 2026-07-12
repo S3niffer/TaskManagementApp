@@ -31,6 +31,7 @@ type newUser struct {
 
 func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user User
+	defer r.Body.Close()
 
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
