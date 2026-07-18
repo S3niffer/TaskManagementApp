@@ -3,10 +3,11 @@ package app
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/s3niffer/taskmanagementapp/internal/store"
+	"github.com/s3niffer/taskmanagementapp/migrations"
 )
 
 type Application struct {
@@ -14,7 +15,12 @@ type Application struct {
 }
 
 func New() (Application, error) {
-	db, err := connectToDB()
+	db, err := store.ConnectToDB()
+	if err != nil {
+		return Application{}, err
+	}
+
+	err = store.Migrate(db, "postgres", ".", migrations.FS)
 	if err != nil {
 		return Application{}, err
 	}
@@ -32,19 +38,4 @@ func (Application) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	}{
 		Status: "ok",
 	})
-}
-
-func connectToDB() (*sql.DB, error) {
-	db, err := sql.Open("pgx", "host=localhost port=5433 user=postgres password=mypassword dbname=task_management sslmode=disable")
-	if err != nil {
-		return nil, fmt.Errorf("Open db: %w", err)
-	}
-
-	if err = db.Ping(); err != nil {
-		return nil, fmt.Errorf("Open db: %w", err)
-	}
-
-	fmt.Print("Database is up.")
-
-	return db, nil
 }
