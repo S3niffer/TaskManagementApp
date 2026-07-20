@@ -79,9 +79,12 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if pass == user.Password_hash {
-		w.Write([]byte("youre logged in."))
+	fmt.Println([]byte(pass), []byte(user.Password_hash))
+	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(user.Password_hash))
+	if err != nil {
+		http.Error(w, "Password is wrong", http.StatusForbidden)
 		return
 	}
-	w.Write([]byte("youre not logged in."))
+
+	w.Write([]byte("youre logged in."))
 }
