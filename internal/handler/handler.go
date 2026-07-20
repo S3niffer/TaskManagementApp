@@ -10,5 +10,7 @@ func New(app app.Application) *chi.Mux {
 
 	r.Get("/health", app.HealthCheck)
 
+	r.Post("/register", app.UserApi.RegisterUser)
+
 	return r
 }

@@ -6,12 +6,14 @@ import (
 	"net/http"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/s3niffer/taskmanagementapp/internal/api"
 	"github.com/s3niffer/taskmanagementapp/internal/store"
 	"github.com/s3niffer/taskmanagementapp/migrations"
 )
 
 type Application struct {
-	DB *sql.DB
+	DB      *sql.DB
+	UserApi api.UserApi
 }
 
 func New() (Application, error) {
@@ -26,7 +28,8 @@ func New() (Application, error) {
 	}
 
 	return Application{
-		DB: db,
+		DB:      db,
+		UserApi: api.NewUserApi(store.NewUserStore(db)),
 	}, nil
 }
 
