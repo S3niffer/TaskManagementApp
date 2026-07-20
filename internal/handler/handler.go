@@ -13,7 +13,16 @@ import (
 func New(app app.Application) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(AuthMiddleware)
+	// r.Use(AuthMiddleware)
+
+	// r.With(AuthMiddleware).Get()
+
+	// r.Group(func(r chi.Router) {
+	// 	r.Use(AuthMiddleware)
+	// 	// ....
+	// })
+
+	// r.Route("/protected",func(r chi.Router) {})
 
 	r.Get("/health", app.HealthCheck)
 
