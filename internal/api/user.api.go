@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -50,4 +52,30 @@ func (u UserApi) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		Create_at:  user.Create_at,
 		Updated_at: user.Updated_at,
 	})
+}
+
+func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		fmt.Printf("Error login user: %s\n", err.Error())
+		http.Error(w, fmt.Errorf("parsing the body: (%w)", err).Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, pass, err := u.Store.FindUser(user.Username)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.Error(w, "No such user has been found.", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		fmt.Print("ERROR", err)
+		return
+	}
+
+	if pass == user.Password_hash {
+		w.Write([]byte("youre logged in."))
+		return
+	}
+	w.Write([]byte("youre not logged in."))
 }
