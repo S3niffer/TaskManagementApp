@@ -82,7 +82,7 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println([]byte(pass), []byte(user.Password_hash))
 	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(user.Password_hash))
 	if err != nil {
-		http.Error(w, "Password is wrong", http.StatusForbidden)
+		http.Error(w, "Password is wrong", http.StatusUnauthorized)
 		return
 	}
 
