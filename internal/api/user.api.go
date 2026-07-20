@@ -78,7 +78,7 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, pass, err := u.Store.FindUser(user.Username)
+	userId, pass, err := u.Store.FindUser(user.Username)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "No such user has been found.", http.StatusNotFound)
 		return
@@ -94,7 +94,7 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := getJwtToken(user.ID)
+	token, err := getJwtToken(userId)
 
 	w.Header().Add("Content-Type", "application/json")
 

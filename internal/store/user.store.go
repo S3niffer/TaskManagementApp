@@ -31,8 +31,9 @@ func (us UserStore) AddUser(username, email, password string, u *models.User) er
 	return nil
 }
 
-func (us UserStore) FindUser(username string) (string, string, error) {
-	var id, pass string
+func (us UserStore) FindUser(username string) (int, string, error) {
+	var id int
+	var pass string
 
 	query := `
 		SELECT id,password_hash FROM users WHERE username = $1;
@@ -40,7 +41,7 @@ func (us UserStore) FindUser(username string) (string, string, error) {
 
 	err := us.db.QueryRow(query, username).Scan(&id, &pass)
 	if err != nil {
-		return "", "", err
+		return 0, "", err
 	}
 
 	return id, pass, err
