@@ -9,6 +9,7 @@ import (
 
 	"github.com/s3niffer/taskmanagementapp/internal/models"
 	"github.com/s3niffer/taskmanagementapp/internal/store"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserApi struct {
@@ -36,7 +37,12 @@ func (u UserApi) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.Store.AddUser(user.Username, user.Email, user.Password_hash, &user)
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password_hash), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "password hash", http.StatusInternalServerError)
+	}
+
+	err = u.Store.AddUser(user.Username, user.Email, string(hash), &user)
 	if err != nil {
 		fmt.Printf("Error RegisterUser: add to db %s", err.Error())
 		http.Error(w, "couldn't insert into db.", http.StatusInternalServerError)
