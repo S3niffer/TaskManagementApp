@@ -16,9 +16,5 @@ type NewUser struct {
 	Password_hash string `json:"-"`
 	Create_at     string `json:"created_at"`
 	Updated_at    string `json:"updated_at"`
-}
-
-type AnonymousUser struct {
-	Username      string `json:"username"`
-	Password_hash string `json:"password_hash"`
+	AccessToken   string `json:"access_token"`
 }

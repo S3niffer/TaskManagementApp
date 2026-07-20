@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/s3niffer/taskmanagementapp/internal/models"
 	"github.com/s3niffer/taskmanagementapp/internal/store"
 	"golang.org/x/crypto/bcrypt"
@@ -49,14 +51,21 @@ func (u UserApi) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := getJwtToken(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 
 	err = json.NewEncoder(w).Encode(models.NewUser{
-		ID:         user.ID,
-		Username:   user.Username,
-		Email:      user.Email,
-		Create_at:  user.Create_at,
-		Updated_at: user.Updated_at,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		Create_at:   user.Create_at,
+		Updated_at:  user.Updated_at,
+		AccessToken: token,
 	})
 }
 
@@ -79,12 +88,33 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println([]byte(pass), []byte(user.Password_hash))
 	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(user.Password_hash))
 	if err != nil {
 		http.Error(w, "Password is wrong", http.StatusUnauthorized)
 		return
 	}
 
-	w.Write([]byte("youre logged in."))
+	token, err := getJwtToken(user.ID)
+
+	w.Header().Add("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(struct {
+		AccessToken string `json:"access_token"`
+	}{
+		AccessToken: token,
+	})
+}
+
+func getJwtToken(id int) (string, error) {
+	claims := jwt.MapClaims{
+		"userID": id,
+		"exp":    time.Now().Add(time.Minute * 2).Unix(),
+	}
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("JWT_SECRET"))
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
