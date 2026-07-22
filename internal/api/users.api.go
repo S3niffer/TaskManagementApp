@@ -79,6 +79,11 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Email == "" || user.Password_hash == "" {
+		http.Error(w, "none of username,password can be empty.", http.StatusBadRequest)
+		return
+	}
+
 	userId, pass, err := u.Store.FindUserByUsername(user.Username)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "No such user has been found.", http.StatusNotFound)
