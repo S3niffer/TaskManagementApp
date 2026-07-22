@@ -20,15 +20,16 @@ func New(app app.Application) *chi.Mux {
 
 	r.Group(func(r chi.Router) {
 		r.Use(AuthMiddleware)
-		r.Get("/me", app.UserApi.GetUserInfo)
+		r.Get("/me", app.UsersApi.GetUserInfo)
+		r.Post("/tasks", app.TasksApi.CreateTask)
 	})
 
 	// r.Route("/protected",func(r chi.Router) {})
 
 	r.Get("/health", app.HealthCheck)
 
-	r.Post("/register", app.UserApi.RegisterUser)
-	r.Post("/login", app.UserApi.LoginUser)
+	r.Post("/register", app.UsersApi.RegisterUser)
+	r.Post("/login", app.UsersApi.LoginUser)
 
 	return r
 }

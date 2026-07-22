@@ -12,8 +12,9 @@ import (
 )
 
 type Application struct {
-	DB      *sql.DB
-	UserApi api.UserApi
+	DB       *sql.DB
+	UsersApi api.UserApi
+	TasksApi api.TasksApi
 }
 
 func New() (Application, error) {
@@ -28,8 +29,9 @@ func New() (Application, error) {
 	}
 
 	return Application{
-		DB:      db,
-		UserApi: api.NewUserApi(store.NewUserStore(db)),
+		DB:       db,
+		UsersApi: api.NewUserApi(store.NewUserStore(db)),
+		TasksApi: api.NewTasksApi(store.NewTasksStore(db)),
 	}, nil
 }
 
