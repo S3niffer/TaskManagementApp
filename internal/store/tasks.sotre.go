@@ -90,3 +90,24 @@ func (t TasksStore) GetTask(taskId int) (models.Task, error) {
 
 	return task, nil
 }
+
+func (t TasksStore) DeleteTask(taskId int) error {
+	query := `
+		DELETE FROM tasks
+		WHERE id = $1
+	`
+
+	r, err := t.db.Exec(query, taskId)
+	if err != nil {
+		return err
+	}
+	num, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if num == 0 {
+		return fmt.Errorf("couldn't find any task with id: %d", taskId)
+	}
+
+	return nil
+}

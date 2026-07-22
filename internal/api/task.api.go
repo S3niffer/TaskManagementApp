@@ -97,7 +97,30 @@ func (t TasksApi) GetTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (t TasksApi) DeleteTask(w http.ResponseWriter, r *http.Request) {}
+func (t TasksApi) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+
+	if idStr == "" {
+		http.Error(w, "Bad request task id", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Bad request task id", http.StatusBadRequest)
+		return
+	}
+
+	err = t.store.DeleteTask(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(fmt.Sprintf("task with id %d has been deleted successfully.", id))
+}
 
 func (t TasksApi) UpdateTask(w http.ResponseWriter, r *http.Request) {}
 
