@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/s3niffer/taskmanagementapp/internal/models"
 )
@@ -29,5 +30,43 @@ func (t TasksStore) CreateTask(task *models.Task, userId int) error {
 		return err
 	}
 
+	return nil
+}
+
+func (t TasksStore) GetTasks(userId int) ([]models.Task, error) {
+	var tasks []models.Task
+	query := `
+		SELECT * FROM tasks
+		WHERE user_id = $1;
+	`
+
+	rows, err := t.db.Query(query, userId)
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var task models.Task
+
+		err = rows.Scan(&task.ID, &task.User_ID, &task.Title, &task.Description, &task.Status, &task.Due_date, &task.Created_at)
+		if err != nil {
+			return nil, fmt.Errorf("scan failed: %w", err)
+		}
+
+		tasks = append(tasks, task)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return tasks, nil
+}
+
+func (t TasksStore) GetTask(userId, taskId int) error {
 	return nil
 }

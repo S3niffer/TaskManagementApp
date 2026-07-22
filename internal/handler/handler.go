@@ -22,6 +22,7 @@ func New(app app.Application) *chi.Mux {
 		r.Use(AuthMiddleware)
 		r.Get("/me", app.UsersApi.GetUserInfo)
 		r.Post("/tasks", app.TasksApi.CreateTask)
+		r.Get("/tasks", app.TasksApi.GetTasks)
 	})
 
 	// r.Route("/protected",func(r chi.Router) {})

@@ -36,7 +36,7 @@ func (t TasksApi) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := strconv.Atoi(fmt.Sprint(r.Context().Value(models.AuthMiddleUserIdKey{})))
+	userId, err := GetUserIdFromRequest(r)
 	if err != nil {
 		http.Error(w, "could'nt convert user id to int.", http.StatusInternalServerError)
 		return
@@ -53,6 +53,30 @@ func (t TasksApi) CreateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func DeleteTask(w http.ResponseWriter, r *http.Request) {}
+func (t TasksApi) GetTasks(w http.ResponseWriter, r *http.Request) {
+	userId, err := GetUserIdFromRequest(r)
+	if err != nil {
+		http.Error(w, "could'nt convert user id to int.", http.StatusInternalServerError)
+		return
+	}
 
-func UpdateTask(w http.ResponseWriter, r *http.Request) {}
+	tasks, err := t.store.GetTasks(userId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(tasks)
+}
+
+func (t TasksApi) GetTask(w http.ResponseWriter, r *http.Request) {}
+
+func (t TasksApi) DeleteTask(w http.ResponseWriter, r *http.Request) {}
+
+func (t TasksApi) UpdateTask(w http.ResponseWriter, r *http.Request) {}
+
+func GetUserIdFromRequest(r *http.Request) (int, error) {
+	return strconv.Atoi(fmt.Sprint(r.Context().Value(models.AuthMiddleUserIdKey{})))
+}
