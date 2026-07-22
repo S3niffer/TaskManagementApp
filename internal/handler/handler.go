@@ -25,6 +25,7 @@ func New(app app.Application) *chi.Mux {
 		r.Get("/tasks", app.TasksApi.GetTasks)
 		r.Delete("/tasks/{id}", app.TasksApi.DeleteTask)
 		r.Get("/tasks/{id}", app.TasksApi.GetTask)
+		r.Patch("/tasks", app.TasksApi.UpdateTask)
 	})
 
 	// r.Route("/protected",func(r chi.Router) {})

@@ -128,7 +128,25 @@ func (t TasksApi) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(fmt.Sprintf("task with id %d has been deleted successfully.", id))
 }
 
-func (t TasksApi) UpdateTask(w http.ResponseWriter, r *http.Request) {}
+func (t TasksApi) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	var task models.Task
+
+	err := json.NewDecoder(r.Body).Decode(&task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.store.UpdateTask(&task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(task)
+}
 
 func GetUserIdFromRequest(r *http.Request) (int, error) {
 	return strconv.Atoi(fmt.Sprint(r.Context().Value(models.AuthMiddleUserIdKey{})))
