@@ -138,7 +138,7 @@ func (u UserApi) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 func getJwtToken(id int) (string, error) {
 	claims := jwt.MapClaims{
 		"userID": id,
-		"exp":    time.Now().Add(time.Minute * 2).Unix(),
+		"exp":    time.Now().Add(time.Hour * 2).Unix(),
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("JWT_SECRET"))
