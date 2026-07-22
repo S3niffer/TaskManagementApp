@@ -65,7 +65,6 @@ func (u UserApi) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		Username:    user.Username,
 		Email:       user.Email,
 		Create_at:   user.Create_at,
-		Updated_at:  user.Updated_at,
 		AccessToken: token,
 	})
 }

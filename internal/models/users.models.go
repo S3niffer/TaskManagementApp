@@ -6,7 +6,6 @@ type User struct {
 	Email         string `json:"email"`
 	Password_hash string `json:"password_hash,omitempty"`
 	Create_at     string `json:"created_at"`
-	Updated_at    string `json:"updated_at"`
 }
 
 type NewUser struct {
@@ -15,7 +14,6 @@ type NewUser struct {
 	Email         string `json:"email"`
 	Password_hash string `json:"-"`
 	Create_at     string `json:"created_at"`
-	Updated_at    string `json:"updated_at"`
 	AccessToken   string `json:"access_token,omitempty"`
 }
 

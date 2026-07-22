@@ -20,10 +20,10 @@ func (us UserStore) AddUser(username, email, password string, u *models.User) er
 	query := `
 	INSERT INTO users (username,email,password_hash)
 	VALUES ($1,$2,$3)
-	RETURNING id,created_at,updated_at;
+	RETURNING id,created_at;
 	`
 
-	err := us.db.QueryRow(query, username, email, password).Scan(&u.ID, &u.Create_at, &u.Updated_at)
+	err := us.db.QueryRow(query, username, email, password).Scan(&u.ID, &u.Create_at)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (us UserStore) FindUserById(id int) (models.NewUser, error) {
 		SELECT * FROM users WHERE id = $1;
 	`
 
-	err := us.db.QueryRow(query, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password_hash, &user.Create_at, &user.Updated_at)
+	err := us.db.QueryRow(query, id).Scan(&user.ID, &user.Username, &user.Email, &user.Password_hash, &user.Create_at)
 	if err != nil {
 		return user, err
 	}
