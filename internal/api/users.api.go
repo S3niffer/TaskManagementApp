@@ -79,7 +79,7 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Email == "" || user.Password_hash == "" {
+	if user.Username == "" || user.Password_hash == "" {
 		http.Error(w, "none of username,password can be empty.", http.StatusBadRequest)
 		return
 	}
