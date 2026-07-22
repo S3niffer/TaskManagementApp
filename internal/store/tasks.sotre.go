@@ -67,6 +67,26 @@ func (t TasksStore) GetTasks(userId int) ([]models.Task, error) {
 	return tasks, nil
 }
 
-func (t TasksStore) GetTask(userId, taskId int) error {
-	return nil
+func (t TasksStore) GetTask(taskId int) (models.Task, error) {
+	var task models.Task
+
+	query := `
+		SELECT * FROM tasks
+		WHERE id = $1
+	`
+
+	err := t.db.QueryRow(query, taskId).Scan(
+		&task.ID,
+		&task.User_ID,
+		&task.Title,
+		&task.Description,
+		&task.Status,
+		&task.Due_date,
+		&task.Created_at,
+	)
+	if err != nil {
+		return models.Task{}, err
+	}
+
+	return task, nil
 }
