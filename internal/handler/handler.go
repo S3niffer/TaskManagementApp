@@ -53,8 +53,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		userId, ok := claims["userID"]
 
-		fmt.Print(userId)
-
 		if ok {
 			next.ServeHTTP(
 				w,
