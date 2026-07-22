@@ -20,7 +20,7 @@ func New(app app.Application) *chi.Mux {
 
 	r.Group(func(r chi.Router) {
 		r.Use(AuthMiddleware)
-		r.Post("/me", app.UserApi.GetUserInfo)
+		r.Get("/me", app.UserApi.GetUserInfo)
 	})
 
 	// r.Route("/protected",func(r chi.Router) {})
@@ -36,6 +36,11 @@ func New(app app.Application) *chi.Mux {
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+
+		if tokenString == "" || tokenString == "Bearer" {
+			http.Error(w, "Your'e not logged in.", http.StatusForbidden)
+			return
+		}
 
 		token, err := jwt.Parse(
 			tokenString,
