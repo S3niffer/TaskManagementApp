@@ -18,3 +18,5 @@ type NewUser struct {
 	Updated_at    string `json:"updated_at"`
 	AccessToken   string `json:"access_token"`
 }
+
+type AuthMiddleUserIdKey struct{}

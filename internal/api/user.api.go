@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -78,7 +79,7 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, pass, err := u.Store.FindUser(user.Username)
+	userId, pass, err := u.Store.FindUserByUsername(user.Username)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "No such user has been found.", http.StatusNotFound)
 		return
@@ -103,6 +104,30 @@ func (u UserApi) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}{
 		AccessToken: token,
 	})
+}
+
+func (u UserApi) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	userIdAsAny := r.Context().Value(models.AuthMiddleUserIdKey{})
+
+	userIdAsInt, err := strconv.Atoi(fmt.Sprint(userIdAsAny))
+	if err != nil {
+		http.Error(w, "Couldn't convert userId into int.", http.StatusInternalServerError)
+		return
+	}
+
+	user, err := u.Store.FindUserById(userIdAsInt)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.Error(w, "No such user has been found.", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		fmt.Print("ERROR", err)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func getJwtToken(id int) (string, error) {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/s3niffer/taskmanagementapp/internal/app"
+	"github.com/s3niffer/taskmanagementapp/internal/models"
 )
 
 func New(app app.Application) *chi.Mux {
@@ -17,10 +19,10 @@ func New(app app.Application) *chi.Mux {
 
 	// r.With(AuthMiddleware).Get()
 
-	// r.Group(func(r chi.Router) {
-	// 	r.Use(AuthMiddleware)
-	// 	// ....
-	// })
+	r.Group(func(r chi.Router) {
+		r.Use(AuthMiddleware)
+		r.Post("/me", app.UserApi.GetUserInfo)
+	})
 
 	// r.Route("/protected",func(r chi.Router) {})
 
@@ -49,10 +51,24 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		claims := token.Claims.(jwt.MapClaims)
 
-		userId := claims["userID"]
+		userId, ok := claims["userID"]
 
-		fmt.Println(userId)
+		fmt.Print(userId)
 
-		next.ServeHTTP(w, r)
+		if ok {
+			next.ServeHTTP(
+				w,
+				r.WithContext(
+					context.WithValue(
+						r.Context(),
+						models.AuthMiddleUserIdKey{},
+						userId,
+					),
+				),
+			)
+			return
+		}
+
+		http.Error(w, "you must to be logged in. to use this route", http.StatusForbidden)
 	})
 }
