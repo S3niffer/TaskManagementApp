@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/s3niffer/taskmanagementapp/internal/models"
 )
@@ -113,66 +114,54 @@ func (t TasksStore) DeleteTask(taskId int) error {
 }
 
 func (t TasksStore) UpdateTask(task *models.Task) error {
-	current_task, err := t.GetTask(task.ID)
-	if err != nil {
-		return err
+	var (
+		sets []string
+		args []any
+	)
+
+	if task.Description != "" {
+		sets = append(sets, fmt.Sprintf("description = $%d", len(sets)+1))
+		args = append(args, task.Description)
+	}
+	if task.Title != "" {
+		sets = append(sets, fmt.Sprintf("title = $%d", len(sets)+1))
+		args = append(args, task.Title)
+	}
+	if task.Status != "" {
+		sets = append(sets, fmt.Sprintf("status = $%d", len(sets)+1))
+		args = append(args, task.Status)
+	}
+	if task.Due_date != "" {
+		sets = append(sets, fmt.Sprintf("due_date = $%d", len(sets)+1))
+		args = append(args, task.Due_date)
 	}
 
-	var keys []string
-	var values []any
+	if len(sets) != 0 {
+		query := fmt.Sprintf(`
+		UPDATE tasks
+		SET %s
+		WHERE id = $%d
+		RETURNING *;
+		`, strings.Join(sets, ", "),
+			len(args)+1,
+		)
 
-	if current_task.Title != task.Title {
-		current_task.Title = task.Title
-		keys = append(keys, "title")
-		values = append(values, task.Title)
-	}
-	if current_task.Description != task.Description {
-		current_task.Description = task.Description
-		keys = append(keys, "description")
-		values = append(values, task.Description)
+		args = append(args, task.ID)
 
-	}
-	if current_task.Due_date != task.Due_date {
-		current_task.Due_date = task.Due_date
-		keys = append(keys, "due_date")
-		values = append(values, task.Due_date)
-
-	}
-	if current_task.Status != task.Status {
-		current_task.Status = task.Status
-		keys = append(keys, "status")
-		values = append(values, task.Status)
-
-	}
-
-	if len(keys) == 0 {
-		*task = current_task
-		return fmt.Errorf("Provided values are like the current one so nothing changed.")
-	}
-
-	query := `
-	UPDATE tasks SET
-	`
-
-	for i, v := range keys {
-		query += fmt.Sprintf("%s=$%d", v, i+1)
-
-		if len(keys) != i+1 {
-			query += ","
+		err := t.db.QueryRow(query, args...).Scan(&task.ID, &task.User_ID, &task.Title, &task.Description, &task.Status, &task.Due_date, &task.Created_at)
+		if err != nil {
+			return err
 		}
+
+		return nil
 	}
 
-	query += fmt.Sprintf(" WHERE id=$%d;", len(keys)+1)
-
-	values = append(values, task.ID)
-
-	_, err = t.db.Exec(query, values...)
+	// no updates needed just get task
+	currentTask, err := t.GetTask(task.ID)
 	if err != nil {
 		return err
 	}
 
-	*task = current_task
-	fmt.Printf("%+v \n %+v", task, current_task)
-
+	task = &currentTask
 	return nil
 }
