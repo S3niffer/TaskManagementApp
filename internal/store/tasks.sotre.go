@@ -45,9 +45,6 @@ func (t TasksStore) GetTasks(userId int) ([]models.Task, error) {
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("rows iteration error: %w", err)
 	}
-	if err != nil {
-		return nil, fmt.Errorf("query failed: %w", err)
-	}
 	defer rows.Close()
 
 	for rows.Next() {
