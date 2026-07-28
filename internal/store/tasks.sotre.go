@@ -34,15 +34,23 @@ func (t TasksStore) CreateTask(task *models.Task, userId int) error {
 	return nil
 }
 
-func (t TasksStore) GetTasks(userId int) ([]models.Task, error) {
+func (t TasksStore) GetTasks(f models.Task) ([]models.Task, error) {
 	var tasks []models.Task
+	filterSlice := []any{f.User_ID}
 	query := `
 		SELECT * FROM tasks
-		WHERE user_id = $1;
+		WHERE user_id = $1
 	`
 
-	rows, err := t.db.Query(query, userId)
+	if f.Status == "completed" || f.Status == "pending" {
+		filterSlice = append(filterSlice, f.Status)
+		query += ` AND status = $2`
+	}
+
+	query += ";"
+	rows, err := t.db.Query(query, filterSlice...)
 	if err = rows.Err(); err != nil {
+		fmt.Print(err, "\n")
 		return nil, fmt.Errorf("rows iteration error: %w", err)
 	}
 	defer rows.Close()

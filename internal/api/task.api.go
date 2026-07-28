@@ -57,13 +57,19 @@ func (t TasksApi) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t TasksApi) GetTasks(w http.ResponseWriter, r *http.Request) {
-	userId, err := GetUserIdFromRequest(r)
+	var filters models.Task
+	var err error
+	filters.User_ID, err = GetUserIdFromRequest(r)
 	if err != nil {
 		http.Error(w, "could'nt convert user id to int.", http.StatusInternalServerError)
 		return
 	}
 
-	tasks, err := t.store.GetTasks(userId)
+	if r.URL.Query().Has("status") {
+		filters.Status = r.URL.Query().Get("status")
+	}
+
+	tasks, err := t.store.GetTasks(filters)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
