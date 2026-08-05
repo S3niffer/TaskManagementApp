@@ -1,9 +1,18 @@
 @import "tailwindcss";
 
-*,
-*::after,
-*::before {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+@theme {
+    --color-primary: #00add8;
+    --color-white-1: #f0f4f8;
+    --color-white-2: #f7fbfc;
+    --color-black-1: #0b222d;
+}
+
+@layer base {
+    *,
+    *::after,
+    *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 }
